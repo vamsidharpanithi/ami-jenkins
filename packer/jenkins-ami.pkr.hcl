@@ -78,6 +78,15 @@ build {
     destination = "/tmp/plugins.txt"
   }
 
+    provisioner "file" {
+    source      = "create_user_and_helloworld_job.groovy"
+    destination = "create_user_and_helloworld_job.groovy"
+
+  provisioner "file"{
+    source ="jenkins.yaml"
+    destination ="jenkins.yaml"
+  }
+
 
   provisioner "shell" {
     inline = [

@@ -1,0 +1,15 @@
+jenkins:
+  systemMessage: "This Jenkins Instance is managed by CSYE7125 Fall2023 Group 7 Students"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin"
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "Overall/Administer:admin"
+        - "Overall/Read:authenticated"
+        - "Overall/Read:anonymous"
+
