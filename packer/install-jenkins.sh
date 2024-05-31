@@ -2,12 +2,12 @@
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get update -y
 sudo apt-get upgrade -y
-wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public |sudo tee /etc/apt/keyrings/adoptium.asc
-echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" |sudo tee /etc/apt/sources.list.d/adoptium.list
+wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo tee /etc/apt/keyrings/adoptium.asc
+echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
 
 # Installing Java 11
 echo "================================="
-echo "Installing Java 11"
+echo "Installing Java 17"
 echo "================================="
 sudo apt-get update -y
 sudo apt-get install -y openjdk-17-jre
@@ -23,6 +23,13 @@ echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins
 sudo apt-get update -y
 sudo apt-get install jenkins -y
 
+echo "================================="
+echo "Applying Jenkins Configuration as Code (Casc) for security settings"
+echo "================================="
+sudo cp /tmp/jenkins.yaml /var/lib/jenkins/casc_configs/
+sudo chmod 777 /var/lib/jenkins/jenkins.yaml /var/lib/jenkins/create_user_and_helloworld_job.groovy
+sudo chown jenkins:jenkins /var/lib/jenkins/jenkins.yaml /var/lib/jenkins/create_user_and_helloworld_job.groovy
+
 
 # Install Jenkins Plugins
 echo "================================="
@@ -30,7 +37,7 @@ echo "Installing Jenkins Plugins"
 echo "================================="
 wget https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/2.12.13/jenkins-plugin-manager-2.12.13.jar
 sudo chmod +x jenkins-plugin-manager-2.12.13.jar
-sudo java -jar ~/jenkins-plugin-manager-2.12.13.jar --war /usr/share/java/jenkins.war --plugin-file /tmp/plugins.txt --plugin-download-directory /var/lib/jenkins/plugins/
+sudo java -jar jenkins-plugin-manager-2.12.13.jar --war /usr/share/java/jenkins.war --plugin-file /tmp/plugins.txt --plugin-download-directory /var/lib/jenkins/plugins/
 sudo chmod +x /var/lib/jenkins/plugins/*.jpi
 
 # Skip Jenkins setup wizard and start Jenkins
@@ -52,7 +59,6 @@ EOL
 
 # Reload systemd daemon and start Jenkins
 sudo systemctl daemon-reload
-
 sudo systemctl start jenkins
 sudo systemctl status jenkins
 
