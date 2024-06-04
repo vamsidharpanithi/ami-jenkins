@@ -4,7 +4,7 @@ This repo creates custom AMI to host Jenkins using Packer
 
 Features:
 
-1. Use Ubuntu 24.04 LTS as source image
+1. Use Ubuntu 24.04 LTS as source image1
 
 ## Packer instruction
 
