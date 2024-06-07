@@ -72,6 +72,7 @@ sudo systemctl status jenkins
 echo "================================="
 echo "Installing Docker"
 echo "================================="
+# Install docker
 # Add Docker's official GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
@@ -88,8 +89,10 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 sudo systemctl enable docker
 sudo systemctl start docker
-sudo usermod -aG docker $USER
+
+# add jenkins to docker users
 sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
 
 # Get Jenkins initial password
 echo "================================="
