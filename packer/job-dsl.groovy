@@ -1,6 +1,6 @@
-pipelineJob('webapp-build') {
-    displayName('WebApp Build')
-    description('Creates docker image with release on webapp repository')
+pipelineJob('static-site') {
+    displayName('StaticSite Build')
+    description('Creates docker image with release on Static-Site repository')
     logRotator {
         daysToKeep(30)
         numToKeep(10)
