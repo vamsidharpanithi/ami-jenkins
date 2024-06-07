@@ -2,14 +2,14 @@ name: Packer Build
 
 on:
   pull_request:
-    types: [closed]
+    branches: [ "main" ]
 
 jobs:
   build:
     name: Packer Build
     runs-on: ubuntu-latest
 
-    if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true
 
     steps:
       - name: Checkout Repository
@@ -38,6 +38,6 @@ jobs:
       - name: Build Image with Packer
         run: |
           cd ./packer/
-          packer build jenkins-ami.pkr.hcl 
+          packer build -var "GH_USERNAME=${{ secrets.GH_USERNAME }}" -var "GH_CREDS=${{ secrets.GH_CREDS }}" -var "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" -var "DOCKERHUB_CREDS=${{ secrets.DOCKERHUB_CREDS }}" jenkins-ami.pkr.hcl 
 
       

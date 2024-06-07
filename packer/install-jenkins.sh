@@ -23,13 +23,6 @@ echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins
 sudo apt-get update -y
 sudo apt-get install jenkins -y
 
-echo "================================="
-echo "Applying Jenkins Configuration as Code (Casc) for security settings"
-echo "================================="
-sudo cp /tmp/jenkins.yaml /var/lib/jenkins/casc_configs/
-sudo chmod 777 /var/lib/jenkins/jenkins.yaml /var/lib/jenkins/create_user_and_helloworld_job.groovy
-sudo chown jenkins:jenkins /var/lib/jenkins/jenkins.yaml /var/lib/jenkins/create_user_and_helloworld_job.groovy
-
 
 # Install Jenkins Plugins
 echo "================================="
@@ -40,27 +33,50 @@ sudo chmod +x jenkins-plugin-manager-2.12.13.jar
 sudo java -jar jenkins-plugin-manager-2.12.13.jar --war /usr/share/java/jenkins.war --plugin-file /tmp/plugins.txt --plugin-download-directory /var/lib/jenkins/plugins/
 sudo chmod +x /var/lib/jenkins/plugins/*.jpi
 
-# Skip Jenkins setup wizard and start Jenkins
 echo "================================="
-echo "Skip the plugins installation, starting Jenkins Agent"
+echo "Placing Jenkins CASC Files"
 echo "================================="
+sudo cp /tmp/casc.yaml /var/lib/jenkins/casc.yaml
+sudo cp /tmp/job-dsl.groovy /var/lib/jenkins/job-dsl.groovy
+sudo chmod +x /var/lib/jenkins/casc.yaml /var/lib/jenkins/job-dsl.groovy
+(cd /var/lib/jenkins/ && sudo chown jenkins:jenkins casc.yaml job-dsl.groovy)
+sudo mkdir -p /var/lib/jenkins/init.groovy.d/
+sudo chown -R jenkins:jenkins /var/lib/jenkins/init.groovy.d/
+sudo mv /tmp/gitcred.groovy /var/lib/jenkins/init.groovy.d/gitcred.groovy
+sudo mv /tmp/dockercred.groovy /var/lib/jenkins/init.groovy.d/dockercred.groovy
 
-# Set JAVA_OPTS to skip setup wizard
-export JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Djenkins.install.UpgradeWizard.state=2"
 
-# Create systemd override directory if it doesn't exist
-sudo mkdir -p /etc/systemd/system/jenkins.service.d
+for plugin in /var/lib/jenkins/plugins/*.jpi; do
+    plugin_name=$(basename -s .jpi "$plugin")
+    sudo mkdir -p "/var/lib/jenkins/plugins/$plugin_name"
+    echo "Extracting $plugin_name"
+    sudo unzip -q "$plugin" -d "/var/lib/jenkins/plugins/$plugin_name"
+done
 
-# Create systemd override file to set JAVA_OPTS
-sudo tee /etc/systemd/system/jenkins.service.d/override.conf > /dev/null <<EOL
-[Service]
-Environment="JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Djenkins.install.UpgradeWizard.state=2"
-EOL
+sudo chown -R jenkins:jenkins /var/lib/jenkins/plugins/
+
+echo "================================="
+echo "Configuring Jenkins Service"
+echo "================================="
+echo 'CASC_JENKINS_CONFIG="/var/lib/jenkins/casc.yaml"' | sudo tee -a /etc/environment
+echo 'JAVA_OPTS="-Djenkins.install.runSetupWizard=false"' | sudo tee -a /etc/environment
+sudo sed -i 's/\(JAVA_OPTS=-Djava\.awt\.headless=true\)/\1 -Djenkins.install.runSetupWizard=false/' /lib/systemd/system/jenkins.service
+sudo sed -i '/Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"/a Environment="CASC_JENKINS_CONFIG=/var/lib/jenkins/casc.yaml"' /lib/systemd/system/jenkins.service
 
 # Reload systemd daemon and start Jenkins
 sudo systemctl daemon-reload
 sudo systemctl start jenkins
 sudo systemctl status jenkins
+
+# Installing Docker
+echo "================================="
+echo "Installing Docker"
+echo "================================="
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+sudo usermod -aG docker jenkins
 
 # Get Jenkins initial password
 echo "================================="
