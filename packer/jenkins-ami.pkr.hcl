@@ -27,6 +27,25 @@ variable "ssh_username" {
   type    = string
   default = "ubuntu"
 }
+variable "GH_USERNAME" {
+  type    = string
+  default = ""
+}
+
+variable "GH_CREDS" {
+  type    = string
+  default = ""
+}
+
+variable "DOCKERHUB_USERNAME" {
+  type    = string
+  default = ""
+}
+
+variable "DOCKERHUB_CREDS" {
+  type    = string
+  default = ""
+}
 
 source "amazon-ebs" "my-ami" {
   region        = var.region
@@ -48,6 +67,20 @@ build {
     source      = "install-jenkins.sh"
     destination = "/tmp/install-jenkins.sh"
   }
+  provisioner "shell" {
+    inline = [
+      "echo 'GH_USERNAME=${var.GH_USERNAME}' | sudo tee -a /etc/jenkins.env",
+      "echo 'GH_CREDS=${var.GH_CREDS}' | sudo tee -a /etc/jenkins.env",
+      "echo 'DOCKERHUB_USERNAME=${var.DOCKERHUB_USERNAME}' | sudo tee -a /etc/jenkins.env",
+      "echo 'DOCKERHUB_CREDS=${var.DOCKERHUB_CREDS}' | sudo tee -a /etc/jenkins.env",
+    ]
+    environment_vars = [
+      "GH_USERNAME=${var.GH_USERNAME}",
+      "GH_CREDS=${var.GH_CREDS}",
+      "DOCKERHUB_USERNAME=${var.DOCKERHUB_USERNAME}",
+      "DOCKERHUB_CREDS=${var.DOCKERHUB_CREDS}"
+    ]
+  }
 
   provisioner "file" {
     source      = "install-nginx.sh"
@@ -65,19 +98,26 @@ build {
   }
 
   provisioner "file" {
-    source      = "create_user_and_helloworld_job.groovy"
-    destination = "create_user_and_helloworld_job.groovy"
-  }
-  provisioner "file" {
     source      = "plugins.txt"
     destination = "/tmp/plugins.txt"
   }
-
   provisioner "file" {
-    source      = "jenkins.yaml"
-    destination = "jenkins.yaml"
+    source      = "casc.yaml"
+    destination = "/tmp/casc.yaml"
   }
 
+  provisioner "file" {
+    source      = "job-dsl.groovy"
+    destination = "/tmp/job-dsl.groovy"
+  }
+  provisioner "file" {
+    source      = "gitcred.groovy"
+    destination = "/tmp/gitcred.groovy"
+  }
+  provisioner "file" {
+    source      = "dockercred.groovy"
+    destination = "/tmp/dockercred.groovy"
+  }
 
   provisioner "shell" {
     inline = [
