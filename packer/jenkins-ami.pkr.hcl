@@ -118,6 +118,10 @@ build {
     source      = "dockercred.groovy"
     destination = "/tmp/dockercred.groovy"
   }
+  provisioner "file" {
+    source      = "pulljob-dsl.groovy"
+    destination = "/tmp/pulljob-dsl.groovy"
+  }
 
   provisioner "shell" {
     inline = [

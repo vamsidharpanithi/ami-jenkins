@@ -34,3 +34,4 @@ jenkins:
 
 jobs:
   - file: /var/lib/jenkins/job-dsl.groovy
+  - file: /var/lib/jenkins/pulljob-dsl.groovy
