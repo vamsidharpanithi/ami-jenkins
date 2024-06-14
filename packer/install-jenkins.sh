@@ -13,6 +13,25 @@ sudo apt-get update -y
 sudo apt-get install -y openjdk-17-jre
 /usr/bin/java --version
 
+# Installing NodeJS
+echo "================================="
+echo "Installing NodeJS"
+echo "================================="
+
+sudo apt-get install -y curl
+curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh
+sudo -E bash nodesource_setup.sh
+sudo apt-get install -y nodejs
+sudo apt install npm -y
+sudo node -v
+sudo npm -v
+sudo npm install -g semantic-release@17.4.4
+sudo npm install -g @semantic-release/git@9.0.0
+sudo npm install -g @semantic-release/exec@5.0.0
+sudo npm install -g conventional-changelog-conventionalcommits
+sudo npm install -g npm-cli-login
+sudo apt install gh -y
+
 # Add Jenkins Repository
 echo "================================="
 echo "Adding Jenkins Repository, install Jenkins"
@@ -38,8 +57,9 @@ echo "Placing Jenkins CASC Files"
 echo "================================="
 sudo cp /tmp/casc.yaml /var/lib/jenkins/casc.yaml
 sudo cp /tmp/job-dsl.groovy /var/lib/jenkins/job-dsl.groovy
-sudo chmod +x /var/lib/jenkins/casc.yaml /var/lib/jenkins/job-dsl.groovy
-(cd /var/lib/jenkins/ && sudo chown jenkins:jenkins casc.yaml job-dsl.groovy)
+sudo cp /tmp/pulljob-dsl.groovy /var/lib/jenkins/pulljob-dsl.groovy
+sudo chmod +x /var/lib/jenkins/casc.yaml /var/lib/jenkins/job-dsl.groovy /var/lib/jenkins/pulljob-dsl.groovy
+(cd /var/lib/jenkins/ && sudo chown jenkins:jenkins casc.yaml job-dsl.groovy pulljob-dsl.groovy)
 sudo mkdir -p /var/lib/jenkins/init.groovy.d/
 sudo chown -R jenkins:jenkins /var/lib/jenkins/init.groovy.d/
 sudo mv /tmp/gitcred.groovy /var/lib/jenkins/init.groovy.d/gitcred.groovy
@@ -72,8 +92,6 @@ sudo systemctl status jenkins
 echo "================================="
 echo "Installing Docker"
 echo "================================="
-# Install docker
-# Add Docker's official GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -92,6 +110,22 @@ sudo systemctl start docker
 
 # add jenkins to docker users
 sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+
+
+# Installing Helm
+echo "================================="
+echo "Installing Helm"
+echo "================================="
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+
+echo "================================="
+echo "Restarting Jenkins"
+echo "================================="
+sudo systemctl enable jenkins
 sudo systemctl restart jenkins
 
 # Get Jenkins initial password
