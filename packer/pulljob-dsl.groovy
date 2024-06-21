@@ -91,3 +91,34 @@ multibranchPipelineJob('helm-pr-check') {
     }
 }
 
+multibranchPipelineJob('Aws-pr-check') {
+    displayName('Aws-pr-check')
+    description('AWS Status check on pull')
+    branchSources {
+        github {
+            id('Aws-pr-check')
+            apiUri('https://api.github.com')
+            repoOwner('cyse7125-su24-team04')
+            repository('infra-aws')
+            scanCredentialsId('github_token')
+            includes('*')
+        }
+    }
+
+
+    configure {
+        def traits = it / 'sources' / 'data' / 'jenkins.branch.BranchSource' / 'source' / 'traits'
+        // Add the ForkPullRequestDiscoveryTrait
+        traits << 'org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait' {
+            strategyId(2) 
+        }
+    }
+
+    configure { node ->
+     def webhookTrigger = node / triggers / 'com.igalg.jenkins.plugins.mswt.trigger.ComputedFolderWebHookTrigger' {
+                spec('')
+                token("cvewebkhook")
+            }
+    }
+}
+
