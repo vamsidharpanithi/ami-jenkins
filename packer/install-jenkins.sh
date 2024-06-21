@@ -121,6 +121,19 @@ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scrip
 chmod 700 get_helm.sh
 ./get_helm.sh
 
+sudo apt update
+sudo apt install unzip
+
+# Installing Terraform
+echo "================================="
+echo "Installing Terraform"
+echo "================================="
+
+wget https://releases.hashicorp.com/terraform/1.1.7/terraform_1.1.7_linux_amd64.zip
+unzip terraform_1.1.7_linux_amd64.zip
+sudo mv terraform /usr/local/bin/
+terraform --version
+
 
 echo "================================="
 echo "Restarting Jenkins"
