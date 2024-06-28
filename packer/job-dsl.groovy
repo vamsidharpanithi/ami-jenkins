@@ -123,3 +123,53 @@ pipelineJob('Aws-Infras') {
         githubPush()
     }
 }
+pipelineJob('Consumer-app') {
+    displayName('Consumer App')
+    description('Pipeline to build Consumer App')
+    logRotator {
+        daysToKeep(30)
+        numToKeep(10)
+    }
+    definition {
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://github.com/cyse7125-su24-team04/webapp-cve-consumer.git')
+                        credentials('github_token')
+                    }
+                    branch('*/main')
+                }
+                scriptPath('Jenkinsfile.semantic')
+            }
+        }
+    }
+    triggers{
+        githubPush()
+    }
+}
+pipelineJob('Consumer-Helm') {
+    displayName('Consumer Helm')
+    description('Pipeline to build Consumer Helm')
+    logRotator {
+        daysToKeep(30)
+        numToKeep(10)
+    }
+    definition {
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://github.com/cyse7125-su24-team04/helm-webapp-cve-consumer.git')
+                        credentials('github_token')
+                    }
+                    branch('*/main')
+                }
+                scriptPath('Jenkinsfile.semantic')
+            }
+        }
+    }
+    triggers{
+        githubPush()
+    }
+}
