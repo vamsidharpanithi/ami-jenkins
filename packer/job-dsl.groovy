@@ -173,3 +173,28 @@ pipelineJob('Consumer-Helm') {
         githubPush()
     }
 }
+pipelineJob('Autoscaler-Helm') {
+    displayName('Autoscaler Helm')
+    description('Pipeline to build Autoscaler Helm')
+    logRotator {
+        daysToKeep(30)
+        numToKeep(10)
+    }
+    definition {
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://github.com/cyse7125-su24-team04/helm-eks-autoscaler.git')
+                        credentials('github_token')
+                    }
+                    branch('*/main')
+                }
+                scriptPath('Jenkinsfile.semantic')
+            }
+        }
+    }
+    triggers{
+        githubPush()
+    }
+}

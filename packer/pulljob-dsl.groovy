@@ -184,3 +184,33 @@ multibranchPipelineJob('consumerhelm-pr-check') {
     }
 }
 
+multibranchPipelineJob('Autoscalerhelm-pr-check') {
+    displayName('Autoscalerhelm-pr-check')
+    description('Autoscalerhelm Status check on pull')
+    branchSources {
+        github {
+            id('Autoscalerhelm-pr-check')
+            apiUri('https://api.github.com')
+            repoOwner('cyse7125-su24-team04')
+            repository('helm-eks-autoscaler')
+            scanCredentialsId('github_token')
+            includes('*')
+        }
+    }
+
+
+    configure {
+        def traits = it / 'sources' / 'data' / 'jenkins.branch.BranchSource' / 'source' / 'traits'
+        // Add the ForkPullRequestDiscoveryTrait
+        traits << 'org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait' {
+            strategyId(2) 
+        }
+    }
+
+    configure { node ->
+     def webhookTrigger = node / triggers / 'com.igalg.jenkins.plugins.mswt.trigger.ComputedFolderWebHookTrigger' {
+                spec('')
+                token("cvewebkhook")
+            }
+    }
+}
