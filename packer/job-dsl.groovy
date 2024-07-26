@@ -198,3 +198,55 @@ pipelineJob('Autoscaler-Helm') {
         githubPush()
     }
 }
+
+pipelineJob('Webapp-CVE') {
+    displayName('Webapp CVE ')
+    description('Pipeline to build Webapp')
+    logRotator {
+        daysToKeep(30)
+        numToKeep(10)
+    }
+    definition {
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://github.com/cyse7125-su24-team04/cve-operator.git')
+                        credentials('github_token')
+                    }
+                    branch('*/main')
+                }
+                scriptPath('Jenkinsfile.semantic')
+            }
+        }
+    }
+    triggers{
+        githubPush()
+    }
+}
+
+pipelineJob('Helm-CVE') {
+    displayName('Helm CVE')
+    description('Pipeline to build helm chart for helm')
+    logRotator {
+        daysToKeep(30)
+        numToKeep(10)
+    }
+    definition {
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://github.com/cyse7125-su24-team04/helm-cve-operator.git')
+                        credentials('github_token')
+                    }
+                    branch('*/main')
+                }
+                scriptPath('Jenkinsfile.release')
+            }
+        }
+    }
+    triggers{
+        githubPush()
+    }
+}

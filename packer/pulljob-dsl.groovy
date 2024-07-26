@@ -214,3 +214,65 @@ multibranchPipelineJob('Autoscalerhelm-pr-check') {
             }
     }
 }
+
+multibranchPipelineJob('Operator-pr-check') {
+    displayName('Operator-pr-check')
+    description('Operator app Status check on pull')
+    branchSources {
+        github {
+            id('Operator-pr-check')
+            apiUri('https://api.github.com')
+            repoOwner('cyse7125-su24-team04')
+            repository('cve-operator')
+            scanCredentialsId('github_token')
+            includes('*')
+        }
+    }
+
+
+    configure {
+        def traits = it / 'sources' / 'data' / 'jenkins.branch.BranchSource' / 'source' / 'traits'
+        // Add the ForkPullRequestDiscoveryTrait
+        traits << 'org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait' {
+            strategyId(2) 
+        }
+    }
+
+    configure { node ->
+     def webhookTrigger = node / triggers / 'com.igalg.jenkins.plugins.mswt.trigger.ComputedFolderWebHookTrigger' {
+                spec('')
+                token("cvewebkhook")
+            }
+    }
+}
+
+multibranchPipelineJob('Operatorhelm-pr-check') {
+    displayName('Operatorhelm-pr-check')
+    description('Operatorhelm Status check on pull')
+    branchSources {
+        github {
+            id('Operatorhelm-pr-check')
+            apiUri('https://api.github.com')
+            repoOwner('cyse7125-su24-team04')
+            repository('helm-cve-operator')
+            scanCredentialsId('github_token')
+            includes('*')
+        }
+    }
+
+
+    configure {
+        def traits = it / 'sources' / 'data' / 'jenkins.branch.BranchSource' / 'source' / 'traits'
+        // Add the ForkPullRequestDiscoveryTrait
+        traits << 'org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait' {
+            strategyId(2) 
+        }
+    }
+
+    configure { node ->
+     def webhookTrigger = node / triggers / 'com.igalg.jenkins.plugins.mswt.trigger.ComputedFolderWebHookTrigger' {
+                spec('')
+                token("cvewebkhook")
+            }
+    }
+}
