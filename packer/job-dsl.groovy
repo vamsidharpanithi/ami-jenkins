@@ -250,3 +250,29 @@ pipelineJob('HelmOperator-CVE') {
         githubPush()
     }
 }
+
+pipelineJob('CloudWatch-CVE') {
+    displayName('CloudWatch CVE ')
+    description('Pipeline to build CloudWatch')
+    logRotator {
+        daysToKeep(30)
+        numToKeep(10)
+    }
+    definition {
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://github.com/cyse7125-su24-team04/helm-cloudewatch.git')
+                        credentials('github_token')
+                    }
+                    branch('*/main')
+                }
+                scriptPath('Jenkinsfile.semantic')
+            }
+        }
+    }
+    triggers{
+        githubPush()
+    }
+}
